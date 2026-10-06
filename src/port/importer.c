@@ -671,7 +671,9 @@ static int stage_stream(stream_t *s, const char *name, const char *container, co
     }
     sha1_init(&whole);
     sha1_init(&head);
-    while ((got = raw_read(s, data_buffer, CHUNK)) > 0)
+    /* Whole chunks are written: decompressors hand data over in smaller pieces, and many small
+     * writes to the title folder get slower as the file grows. */
+    while ((got = read_full(s, data_buffer, CHUNK)) > 0)
     {
         sha1_update(&whole, data_buffer, (size_t)got);
         if (total < HEAD)
@@ -931,7 +933,7 @@ static int spool_and_walk(stream_t *s, const char *path, const char *name, int d
         return -1;
     }
     set_current("Unpacking %s", name);
-    while ((got = raw_read(s, data_buffer, CHUNK)) > 0)
+    while ((got = read_full(s, data_buffer, CHUNK)) > 0)
     {
         if (write_all(fd, data_buffer, (size_t)got) != 0)
         {

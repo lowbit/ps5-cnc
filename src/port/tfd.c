@@ -189,6 +189,8 @@ static void *on_fopen(const char *filename, const char *modes, void *userdata)
     }
     if (strchr(modes, 'w') != NULL)
     {
+        /* unshield writes in small pieces; the title folder wants large writes. */
+        setvbuf(handle->real, NULL, _IOFBF, 1 << 20);
         handle->writing = 1;
         sha1_init(&handle->whole);
         sha1_init(&handle->head);
