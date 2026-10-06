@@ -1,0 +1,12 @@
+# Where PS5 Native RA downloads the Red Alert discs Electronic Arts released as freeware, read by the
+# title each time the player chooses "Download the free Red Alert" (src/port/importer.c). A line is
+# "<disc> <address>"; the title tries a disc's addresses in order until one gives the disc's archive
+# or image, then the addresses built into it. Editing this file changes the sources of every copy of
+# the title, without a new build.
+#
+# EA released Red Alert as freeware on 31 August 2008, from its own server, as two RAR files of the
+# discs' images (RedAlert1_AlliedDisc.rar, 524,014,608 bytes; RedAlert1_SovietDisc.rar, 526,433,084
+# bytes). The server is gone; these are the Internet Archive's copies of those downloads (the "id_"
+# form returns the files as EA served them).
+allied https://web.archive.org/web/2008id_/http://na.llnet.cnc3tv.ea.com/u/f/eagames/cnc3/cnc3tv/RedAlert/RedAlert1_AlliedDisc.rar
+soviet https://web.archive.org/web/2008id_/http://na.llnet.cnc3tv.ea.com/u/f/eagames/cnc3/cnc3tv/RedAlert/RedAlert1_SovietDisc.rar

@@ -2,7 +2,7 @@
 NATIVE_TOOL := .deps/native-app/build/host/ps5-native-tool
 SDK := .deps/native-app/.deps/native/ps5-payload-sdk
 
-.PHONY: package release ps5 deps runtime host launcher
+.PHONY: package release ps5 deps runtime host launcher test
 
 package: ps5 launcher
 	bash tools/package.sh
@@ -23,6 +23,10 @@ runtime: $(NATIVE_TOOL)
 
 host: vanilla-conquer/CMakeLists.txt
 	bash tools/build-host.sh
+
+# The importer's tests, and the launcher, on this PC (needs the sources from deps).
+test: deps
+	bash tools/test-import.sh
 
 launcher: build/launcher/ralaunch.elf
 

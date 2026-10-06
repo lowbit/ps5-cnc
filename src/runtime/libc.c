@@ -38,6 +38,13 @@ int ___mb_cur_max_l(locale_t locale)
     return _Getmbcurmax();
 }
 
+/* The SDK's FreeBSD headers expand MB_CUR_MAX to this (libarchive's character conversions use
+ * it); the console's C library names it _Getmbcurmax. */
+int ___mb_cur_max(void)
+{
+    return _Getmbcurmax();
+}
+
 int freelocale(locale_t locale)
 {
     (void)locale;

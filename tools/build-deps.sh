@@ -99,3 +99,25 @@ if ! built openal; then
     cmake_install openal "$sources/openal-soft-1.24.3" "${options[@]}"
     done_with openal
 fi
+
+# Sources the importer compiles in (cmake/import-libs.cmake builds them with the game, with the
+# settings in third_party/): libarchive's readers (ZIP, 7Z, RAR, ISO 9660), xz's liblzma decoders,
+# zlib's inflate, qrcodegen for the send screen's QR code and unshield for The First Decade's
+# InstallShield cabinets.
+if ! built import-sources; then
+    fetch libarchive-3.8.9.tar.gz f5a6539059cf5e597dbeda37bfa4874b1e8dea063c8d93bf85a2b44af90a5bd4 \
+        https://github.com/libarchive/libarchive/releases/download/v3.8.9/libarchive-3.8.9.tar.gz \
+        https://www.libarchive.org/downloads/libarchive-3.8.9.tar.gz
+    unpack libarchive-3.8.9.tar.gz libarchive-3.8.9
+    fetch xz-5.8.4.tar.gz 0014c7886930454fe8bd4228665b51af55eeae560ea135c9c4cd33f55b2591d9 \
+        https://github.com/tukaani-project/xz/releases/download/v5.8.4/xz-5.8.4.tar.gz
+    unpack xz-5.8.4.tar.gz xz-5.8.4
+    fetch zlib-1.3.2.tar.gz bb329a0a2cd0274d05519d61c667c062e06990d72e125ee2dfa8de64f0119d16 \
+        https://github.com/madler/zlib/releases/download/v1.3.2/zlib-1.3.2.tar.gz \
+        https://zlib.net/zlib-1.3.2.tar.gz
+    unpack zlib-1.3.2.tar.gz zlib-1.3.2
+    fetch_git QR-Code-generator-1.8.0 https://github.com/nayuki/QR-Code-generator.git \
+        720f62bddb7226106071d4728c292cb1df519ceb
+    fetch_git unshield-1.6.2 https://github.com/twogood/unshield.git 51de441ba6893f11026d4671ccef9e8e2a4634fa
+    done_with import-sources
+fi

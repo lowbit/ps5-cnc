@@ -1,0 +1,127 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: PS5 Native RA <noreply@anthropic.com>
+Date: Tue, 6 Oct 2026 16:02:22 +0000
+Subject: [PATCH] Let the PS5 title's disc folders come before its data folder
+
+The PS5 title's importer puts each disc's MAIN.MIX in a folder of its
+own and one holding every disc in the data folder itself. A disc's
+folder is now searched before the data folder, and a disc the player
+has no copy of is replaced by one they have: the one holding every
+disc, else the disc in use, else the first one there is.
+---
+ redalert/conquer.cpp | 95 ++++++++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 95 insertions(+)
+
+diff --git a/redalert/conquer.cpp b/redalert/conquer.cpp
+index 4825ba4..8cd209e 100644
+--- a/redalert/conquer.cpp
++++ b/redalert/conquer.cpp
+@@ -3701,6 +3701,100 @@ static void Reinit_Secondary_Mixfiles()
+  */
+ static int LastCD = -1;
+ 
++#ifdef __PROSPERO__
++/**
++ * PS5: the title's importer puts each disc's MAIN.MIX in a folder of its own (allied, soviet,
++ * counterstrike, aftermath) and one holding every disc in the data folder itself. A disc's folder is
++ * searched before the data folder, and a disc the player has no copy of is replaced by one they have:
++ * the one holding every disc, else the disc in use, else the first one there is. Counterstrike's
++ * missions, which ask for either expansion disc, take whichever of the two is there.
++ */
++static bool Change_Local_Dir(int cd)
++{
++    static bool _initialised = false;
++    static unsigned _detected = 0;
++    static std::string _folders[CD_COUNT];
++    static const char* _vol_labels[CD_COUNT] = {"allied", "soviet", "counterstrike", "aftermath", "."};
++    std::string paths[3] = {Paths.User_Path(), Paths.Data_Path(), Paths.Program_Path()};
++
++    // A disc counts when its folder has a MAIN.MIX of its own.
++    if (!_initialised) {
++        for (int i = 0; i < CD_COUNT; ++i) {
++            for (int j = 0; j < 3; ++j) {
++                std::string folder = Paths.Concatenate_Paths(paths[j].c_str(), _vol_labels[i]);
++                RawFileClass main_mix(Paths.Concatenate_Paths(folder.c_str(), "MAIN.MIX").c_str());
++
++                if (main_mix.Is_Available()) {
++                    _detected |= 1 << i;
++                    _folders[i] = folder;
++                    _folders[i] += PathsClass::SEP;
++                    break;
++                }
++            }
++        }
++
++        _initialised = true;
++    }
++
++    if (_detected == 0) {
++        return false;
++    }
++
++    // Any disc: the one in use, or else the most recent expansion there is.
++    if (cd == CD_ANY) {
++        if (LastCD != CD_ANY) {
++            return true;
++        }
++
++        for (int i = CD_COUNT - 2; i >= 0; --i) {
++            if (_detected & (1 << i)) {
++                cd = i;
++                break;
++            }
++        }
++    }
++
++    if (cd == CD_CS_OR_AM) {
++        if (LastCD == CD_AFTERMATH || LastCD == CD_COUNTERSTRIKE) {
++            return true;
++        }
++        cd = (_detected & (1 << CD_COUNTERSTRIKE)) && !(_detected & (1 << CD_AFTERMATH)) ? CD_COUNTERSTRIKE
++                                                                                         : CD_AFTERMATH;
++    }
++
++    if (cd < 0 || cd >= CD_COUNT || !(_detected & (1 << cd))) {
++        if (_detected & (1 << CD_DATADIR)) {
++            cd = CD_DATADIR;
++        } else if (LastCD >= 0) {
++            return true;
++        } else {
++            for (int i = 0; i < CD_COUNT; ++i) {
++                if (_detected & (1 << i)) {
++                    cd = i;
++                    break;
++                }
++            }
++        }
++    }
++
++    if (LastCD == cd) {
++        return true;
++    }
++
++    CDFileClass::Clear_Search_Drives();
++    CDFileClass::Add_Search_Drive(Paths.User_Path());
++    CDFileClass::Add_Search_Drive(_folders[cd].c_str());
++    CDFileClass::Add_Search_Drive(Paths.Data_Path());
++
++    CurrentCD = cd;
++    LastCD = cd;
++    Theme.Stop();
++    Reinit_Secondary_Mixfiles();
++    ThemeClass::Scan();
++
++    return true;
++}
++#else
+ static bool Change_Local_Dir(int cd)
+ {
+     static bool _initialised = false;
+@@ -3803,6 +3897,7 @@ static bool Change_Local_Dir(int cd)
+ 
+     return false;
+ }
++#endif
+ 
+ bool Force_CD_Available(int cd_desired) //	ajw
+ {
