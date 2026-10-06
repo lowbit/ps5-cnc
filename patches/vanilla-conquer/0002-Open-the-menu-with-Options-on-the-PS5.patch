@@ -1,0 +1,31 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Claude <noreply@anthropic.com>
+Date: Tue, 6 Oct 2026 14:49:14 +0000
+Subject: [PATCH] Open the menu with Options on the PS5
+
+The PS5's SDL passes no Create (back) button to a game, which left the
+controller no way to press Escape: Options, start to SDL, presses
+Escape instead of Return there.
+---
+ common/wwkeyboard_sdl2.cpp | 7 +++++++
+ 1 file changed, 7 insertions(+)
+
+diff --git a/common/wwkeyboard_sdl2.cpp b/common/wwkeyboard_sdl2.cpp
+index 30f1745..3bb0d87 100644
+--- a/common/wwkeyboard_sdl2.cpp
++++ b/common/wwkeyboard_sdl2.cpp
+@@ -264,7 +264,14 @@ void WWKeyboardClassSDL2::Handle_Controller_Button_Event(const SDL_ControllerBut
+         break;
+     case SDL_CONTROLLER_BUTTON_START:
+         keyboardPress = true;
++#ifdef __PROSPERO__
++        /*
++        ** The PS5 passes no Create button to a game, so Options opens the menu.
++        */
++        scancode = SDL_SCANCODE_ESCAPE;
++#else
+         scancode = SDL_SCANCODE_RETURN;
++#endif
+         break;
+     case SDL_CONTROLLER_BUTTON_LEFTSHOULDER:
+         keyboardPress = true;

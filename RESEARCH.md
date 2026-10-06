@@ -415,17 +415,27 @@ Nobody else takes disc images, installers and archives from a phone the way DOOM
 that stays the model. Two ideas worth taking: reading straight from a USB drive (needs a recent
 ShadowMountPlus) and ProsperoEden's update check against the catalog.
 
-## Decisions for you
+## Decisions
 
-1. One title with both games (the `ld -r` route, to be proven) or two titles.
-2. A "download the freeware games" button with built-in links, or only links the player types.
-   OpenRA downloads freeware content from its own mirrors; our own links would need a host that
-   stays up.
-3. Ship the Red Alert demo in the package (no licence found that allows it) or only accept it.
-4. Data in the title folder (as now) or in `/data/...` (survives deleting the title; needs
-   ShadowMountPlus 1.7beta4 or newer).
-5. Title name and icon (see the trademark terms) and the title IDs.
-6. When to look at USB mouse and keyboard, and whether to spike OpenRA.
+Taken on 2026-10-06:
+
+1. **Red Alert first**, as its own title: **PS5 Native RA**, `PPSA99096` (free in the catalog,
+   upstream included). Tiberian Dawn can follow as a second title on the same code.
+2. **Game data in the title folder** (`/app0/ra`), as DOOM and OpenRCT2 keep theirs: it works with
+   every ShadowMountPlus, and updating by copying the new folder over keeps it. Settings and saves go
+   to `/download0/ra`. The data folder is one constant if it ever moves to `/data`.
+3. Name and icon without EA's marks: "PS5 Native RA" and an icon drawn from plain letters.
+
+Still open:
+
+4. **What the player gets without any files of their own.** The freeware discs are the whole base
+   game (both campaigns, all movies, all music), so "freeware first, own copy for extras" means the
+   own copy only adds Counterstrike and Aftermath. Options: ship nothing and offer a one-button
+   download of the freeware discs (or of the demo) on the first start, which is what OpenRA does;
+   or ship the demo in the package, for which no redistribution licence was found (the catalog
+   leaves anything a title bundles to its developer). Either way the importer and the first-start
+   screen are the same.
+5. When to look at USB mouse and keyboard, and whether to spike OpenRA.
 
 ## Sources
 

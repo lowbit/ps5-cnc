@@ -1,0 +1,101 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Claude <noreply@anthropic.com>
+Date: Tue, 6 Oct 2026 14:41:06 +0000
+Subject: [PATCH] Give the PS5 title fixed data and user folders
+
+A PS5 title runs from /app0 and writes to its save data image,
+/download0. The sandbox refuses the sysctl that finds the executable on
+FreeBSD and there is no home folder, so the PS5 build takes the program
+path as /app0, the data path as /app0/ra and the user path as
+/download0/ra (td for Tiberian Dawn).
+
+The PS5 title supplies main and calls VanillaRA_Main once the console is
+set up.
+---
+ common/paths_posix.cpp | 31 +++++++++++++++++++++++++++++++
+ redalert/startup.cpp   |  8 ++++++++
+ 2 files changed, 39 insertions(+)
+
+diff --git a/common/paths_posix.cpp b/common/paths_posix.cpp
+index 195e6f4..27c0b99 100644
+--- a/common/paths_posix.cpp
++++ b/common/paths_posix.cpp
+@@ -42,6 +42,21 @@
+ #include <sys/sysctl.h>
+ #endif
+ 
++#if defined(__PROSPERO__)
++namespace
++{
++    /*
++    ** A PS5 title runs from /app0, where the game data goes too (/app0/ra), and writes settings
++    ** and saves to its own save data image (/download0/ra). Its sandbox refuses the sysctl that
++    ** finds the executable on FreeBSD, and there is no home folder.
++    */
++    std::string PS5_Folder(const std::string& suffix)
++    {
++        return suffix == "vanillatd" ? "td" : "ra";
++    }
++} // namespace
++#endif
++
+ namespace
+ {
+     const std::string& User_Home()
+@@ -120,6 +135,11 @@ namespace
+ 
+ const char* PathsClass::Program_Path()
+ {
++#if defined(__PROSPERO__)
++    if (ProgramPath.empty()) {
++        ProgramPath = "/app0";
++    }
++#endif
+     if (ProgramPath.empty()) {
+         /*
+         ** Adapted from https://github.com/gpakosz/whereami
+@@ -178,6 +198,11 @@ const char* PathsClass::Program_Path()
+ 
+ const char* PathsClass::Data_Path()
+ {
++#if defined(__PROSPERO__)
++    if (DataPath.empty()) {
++        DataPath = std::string(Program_Path()) + SEP + PS5_Folder(Suffix);
++    }
++#endif
+     if (DataPath.empty()) {
+         if (ProgramPath.empty()) {
+             // Init the program path first if it hasn't been done already.
+@@ -196,6 +221,12 @@ const char* PathsClass::Data_Path()
+ 
+ const char* PathsClass::User_Path()
+ {
++#if defined(__PROSPERO__)
++    if (UserPath.empty()) {
++        UserPath = std::string("/download0") + SEP + PS5_Folder(Suffix);
++        Create_Directory(UserPath.c_str());
++    }
++#endif
+     if (UserPath.empty()) {
+ #ifdef __APPLE__
+         UserPath = User_Home() + "/Library/Application Support/Vanilla-Conquer";
+diff --git a/redalert/startup.cpp b/redalert/startup.cpp
+index 0c4320a..e691f33 100644
+--- a/redalert/startup.cpp
++++ b/redalert/startup.cpp
+@@ -275,7 +275,15 @@ int DLL_Startup(const char* command_line_in)
+ }
+ #endif //REMASTER_BUILD
+ 
++#ifdef __PROSPERO__
++/*
++** The PS5 title supplies main (src/port/main.cpp in the port): it sets the console up and calls
++** this.
++*/
++int VanillaRA_Main(int argc, char* argv[])
++#else
+ int main(int argc, char* argv[])
++#endif
+ {
+     UtfArgs args(argc, argv);
+     WWDebugString("RA95 - Starting up.\n");

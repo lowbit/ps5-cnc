@@ -1,0 +1,5 @@
+/build/
+/dist/
+/.deps/
+/vanilla-conquer/
+__pycache__/
