@@ -1391,7 +1391,7 @@ static void place(staged_t *entry, ra_slot_t slot)
                 "disc it holds",
              entry->origin);
     else
-        note(1, "Added %s (%s) from %s", ra_slot_title(slot), path, entry->origin);
+        note(1, "Added %s (%s) from %s", path, ra_slot_title(slot), entry->origin);
     if (slot == RA_SLOT_REDALERT && !known)
         note(1, "That redalert.mix is not a version the importer knows (the demo's, or another language's?); "
                 "it is used as it is");

@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
 """Renders printable ASCII in DejaVu Sans into a C header for the launcher, which draws text before
-Red Alert's own fonts are there: make-font.py <header>. For each font (small, body, title) the header has an
-8-bit coverage atlas, one row of cells, and for each character from ' ' to '~' its cell's x and
-width, its advance, and where the cell starts relative to the pen (0, or less for a character
-that reaches back). The header is left alone when it would not change."""
+Red Alert's own fonts are there: make-font.py <header>. For each font (small, body, title) the
+header has an 8-bit coverage atlas, one row of cells, and for each character from ' ' to '~' its
+cell's x and width, its advance, and where the cell starts relative to the pen (0, or less for a
+character that reaches back). The header is left alone when it would not change. From the
+OpenRCT2 port."""
 import sys
 from pathlib import Path
 

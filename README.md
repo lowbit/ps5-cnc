@@ -8,17 +8,15 @@ engine built from the source Electronic Arts released, with the DualSense as the
 game files: the two discs EA released as freeware in 2008 hold the whole base game, both campaigns,
 movies and music; Counterstrike and Aftermath come from your own copy.
 
-**Status (2026-10-06): the title builds and packages; it has not run on a console yet.** For the
-first tests the game files are copied to the console by hand. Importing them from a browser, a link
-or disc images, the controller layer and the GPU presentation come next ([DEVELOPMENT.md](DEVELOPMENT.md)).
+**Status (2026-10-06): the title builds and packages; it has not run on a console yet.** The
+launcher that gets the game files (below) is tested on a PC with stand-ins for every kind of
+source; the console test comes next ([DEVELOPMENT.md](DEVELOPMENT.md)).
 
 ## Requirements
 
 - A jailbroken PS5 with kstuff (fake-signed executables) and
   [ShadowMountPlus](https://github.com/drakmor/ShadowMountPlus).
-- Red Alert's game files: the freeware Allied and Soviet disc images, the official demo, or your own
-  copy (retail discs, The First Decade, The Ultimate Collection, the Remastered Collection's legacy
-  files).
+- A network connection for the free download, sending files or links; or a USB drive.
 
 ## Install
 
@@ -27,18 +25,44 @@ or disc images, the controller layer and the GPU presentation come next ([DEVELO
 3. ShadowMountPlus registers it within a few seconds and **PS5 Native RA** appears on the home
    screen.
 
-## Your game files
+## Getting the game files
 
-For now, put them in `/data/homebrew/PPSA99096/ra/`, laid out as `ra/README.txt` in the title folder
-says. From a disc image (open it with 7-Zip on a PC):
+PS5 Native RA starts on a screen that shows which of Red Alert's files are installed and gets the
+missing ones. Nothing of the game is in the package.
 
-| From | To |
+| Choose | What happens |
 | --- | --- |
-| `INSTALL/REDALERT.MIX` (either disc) | `ra/redalert.mix` |
-| `MAIN.MIX` of the Allied disc | `ra/allied/main.mix` |
-| `MAIN.MIX` of the Soviet disc | `ra/soviet/main.mix` |
+| **Download the free Red Alert** | In 2008 Electronic Arts made Red Alert free to download, as the Allied and Soviet discs (`RedAlert1_AlliedDisc.rar`, `RedAlert1_SovietDisc.rar`, about 500 MB each). The title downloads them from the sources in [`data/freeware.txt`](data/freeware.txt) (read from this repository at the time, so they can change without a new build; by default the Internet Archive's copy of EA's own download) and keeps the game files, about 1 GB: both campaigns, every movie and all the music. |
+| **Send files from a PC or phone** | Shows an address and a QR code. Open it in a browser on the same network and drop your disc images, archives or game folder on the page; the console adds them as they arrive and the page shows what it did. |
+| **Download from a link** | Any `http://` or `https://` link to a disc image, an archive or one of the game's files, or to a folder a PC shares over HTTP (its list of files; `python -m http.server` in the folder will do). |
+| **Import from a USB drive** | Pick a file or folder on a USB drive (exFAT or FAT32). A title sees USB drives with ShadowMountPlus 1.7 or later. |
 
-One disc is enough to start. Without the files the title shows a notification and closes.
+Disc images, archives and folders copied over FTP into `/data/homebrew/PPSA99096/import/` are
+added the next time the title starts.
+
+What the importer reads, in any combination and nested in each other (a RAR holding an ISO, a ZIP
+of a folder of images ...):
+
+| You have | Send |
+| --- | --- |
+| EA's 2008 freeware | The two RAR files, or the disc images in them |
+| The original discs (Allied, Soviet, Counterstrike, Aftermath) | Their images: `.iso`, `.bin` (of a `.cue`), `.img`, `.mdf`, raw or not |
+| The Ultimate Collection (EA app, Steam) | The Red Alert folder (`REDALERT.MIX`, `MAIN1.MIX` to `MAIN4.MIX`, `EXPAND*.MIX` ...) |
+| The Remastered Collection (Steam) | Its `Data` folder; it has no Soviet disc |
+| The First Decade | The DVD's image or files (its `data1.hdr` and `data*.cab`), or the installed Red Alert folder |
+| A Red Alert installed from the discs | Its folder |
+| The demo | Its archive |
+
+Archives can be ZIP, 7Z or RAR (RAR 2.9 as EA's, and RAR 5). The importer tells the discs apart by
+their checksums (from OpenRA's installer), the names of the folders and images they came in, and
+the discs' own files, and keeps a known copy over an unknown one. The free discs give the whole base
+game; the expansions come from your own copy:
+
+- **Aftermath**: its disc gives everything (the missions and units are cut out of the installer's
+  `PATCH.RTP`), as does any installed copy.
+- **Counterstrike**: its disc gives the music; its missions are packed inside its installer, so
+  send `EXPAND.MIX` from an installed copy: a Red Alert installed with Counterstrike, or The Ultimate
+  Collection.
 
 ## Controls
 
@@ -55,7 +79,8 @@ Vanilla Conquer's own controller support for now; a layer made for the DualSense
 | L1 / R1 | Ctrl / Alt (force fire, force move) |
 | Options | Escape: the menu, skipping a movie |
 
-Settings and saves stay on the console (`/download0/ra`).
+Settings and saves stay on the console (`/download0/ra`). On the launcher: the D-pad or left stick
+moves, Cross selects, Circle goes back.
 
 ## Building and internals
 

@@ -45,11 +45,11 @@ static const char *const paths[RA_SLOT_COUNT] = {
 
 static const char *const titles[RA_SLOT_COUNT] = {
     "the game's files",
-    "a MAIN.MIX of no known disc",
-    "the Allied disc (campaign and movies)",
-    "the Soviet disc (campaign and movies)",
-    "the Counterstrike disc (music)",
-    "the Aftermath disc (music and sounds)",
+    "every disc it holds",
+    "the Allied campaign and its movies",
+    "the Soviet campaign and its movies",
+    "Counterstrike's music",
+    "Aftermath's music and sounds",
     "Counterstrike's missions",
     "Aftermath's missions and units",
     "Aftermath's graphics",

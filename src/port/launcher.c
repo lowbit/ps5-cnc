@@ -549,17 +549,32 @@ static void start_import(char sources[][IMPORT_URL], int count, int flags, view_
     upload_set_busy(1);
 }
 
-/* Whether the incoming folder holds anything to import. */
-static int incoming_waiting(void)
+/* Whether a folder holds, at any depth, a file the importer reads. */
+static int holds_files(const char *path, int depth)
 {
-    DIR *dir = opendir(incoming);
+    DIR *dir = opendir(path);
     int found = 0;
     if (dir == NULL)
         return 0;
     for (struct dirent *entry; (entry = readdir(dir)) != NULL && !found;)
-        found = entry->d_name[0] != '.';
+    {
+        char child[PATH_SIZE];
+        struct stat info;
+        if (entry->d_name[0] == '.')
+            continue;
+        snprintf(child, sizeof(child), "%s/%s", path, entry->d_name);
+        if (stat(child, &info) != 0)
+            continue;
+        found = S_ISDIR(info.st_mode) ? depth < 8 && holds_files(child, depth + 1) : upload_wanted(entry->d_name);
+    }
     closedir(dir);
     return found;
+}
+
+/* Whether the incoming folder holds anything to import. */
+static int incoming_waiting(void)
+{
+    return holds_files(incoming, 0);
 }
 
 static void start_incoming_import(view_t back)
@@ -1109,6 +1124,8 @@ static void script_input(int frame)
         next = keys;
         started = 1;
     }
+    /* About as fast as the console's frames. */
+    SDL_Delay(16);
     if (frame % 20 != 19)
         return;
     if (*next == '\0')
@@ -1195,7 +1212,9 @@ int launcher_run(const char *game_folder, const char *incoming_folder, const cha
 
     view = VIEW_MENU;
     row = ra_playable(slots) ? ITEM_PLAY : ITEM_FREEWARE;
-    /* What was copied into the incoming folder while the title was closed. */
+    /* What was copied into the incoming folder while the title was closed; not what a send cut
+     * short left. */
+    upload_remove_partial(incoming);
     if (incoming_waiting())
         start_incoming_import(VIEW_MENU);
 

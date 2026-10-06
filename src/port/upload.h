@@ -45,6 +45,9 @@ int upload_wanted(const char *name);
  * part a plain name, the file one the importer reads. 0 on success. */
 int upload_clean_path(char *out, size_t size, const char *path);
 
+/* Deletes the partial files (<name>.upload) an interrupted send left below folder. */
+void upload_remove_partial(const char *folder);
+
 /* Adds a line to the log the page shows, for what the console did with the files. */
 void upload_note(const char *text, int ok);
 

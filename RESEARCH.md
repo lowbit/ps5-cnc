@@ -426,15 +426,16 @@ Taken on 2026-10-06:
    to `/download0/ra`. The data folder is one constant if it ever moves to `/data`.
 3. Name and icon without EA's marks: "PS5 Native RA" and an icon drawn from plain letters.
 
+4. **Nothing of the game is shipped.** The first screen offers a one-button download of the
+   freeware Allied and Soviet discs from their source, as OpenRA does: the sources are listed in
+   `data/freeware.txt`, read from this repository when the player downloads, with the Internet
+   Archive's copy of EA's original download built in as the fallback. Counterstrike and Aftermath,
+   which were not part of the free release, come from the player's own copy through the same
+   importer: sent from a PC or phone, a link, a USB drive or the import folder, as with DOOM and
+   OpenRCT2.
+
 Still open:
 
-4. **What the player gets without any files of their own.** The freeware discs are the whole base
-   game (both campaigns, all movies, all music), so "freeware first, own copy for extras" means the
-   own copy only adds Counterstrike and Aftermath. Options: ship nothing and offer a one-button
-   download of the freeware discs (or of the demo) on the first start, which is what OpenRA does;
-   or ship the demo in the package, for which no redistribution licence was found (the catalog
-   leaves anything a title bundles to its developer). Either way the importer and the first-start
-   screen are the same.
 5. When to look at USB mouse and keyboard, and whether to spike OpenRA.
 
 ## Sources

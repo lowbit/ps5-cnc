@@ -537,6 +537,12 @@ static int listen_on(int candidate)
     return fd;
 }
 
+void upload_remove_partial(const char *path)
+{
+    if (!running)
+        remove_leftovers(path, 0);
+}
+
 int upload_start(const char *incoming)
 {
     if (running)
